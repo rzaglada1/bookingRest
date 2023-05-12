@@ -1,5 +1,6 @@
 package com.rzaglada1.bookingRest.controllers.error;
 
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,11 @@ public class AdviceController {
 
     @ExceptionHandler(value = {IllegalArgumentException.class, IllegalMonitorStateException.class})
     public ResponseEntity<Object> illegalArgument(RuntimeException e) {
+        return new ResponseEntity<>(e.getMessage(), BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {SignatureException.class})
+    public ResponseEntity<Object> signatureException(RuntimeException e) {
         return new ResponseEntity<>(e.getMessage(), BAD_REQUEST);
     }
 

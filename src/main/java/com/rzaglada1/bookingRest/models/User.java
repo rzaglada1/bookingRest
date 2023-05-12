@@ -2,6 +2,7 @@ package com.rzaglada1.bookingRest.models;
 
 
 import com.rzaglada1.bookingRest.models.enams.Role;
+import com.rzaglada1.bookingRest.token.Token;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -52,6 +53,10 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy="user", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
     private List<House> houseList;
+
+    @OneToMany(mappedBy="user", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Token> tokens;
+
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))

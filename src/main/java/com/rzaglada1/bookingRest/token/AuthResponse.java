@@ -1,22 +1,20 @@
-package com.rzaglada1.bookingRest.dto.dto_get;
+package com.rzaglada1.bookingRest.token;
 
 import com.rzaglada1.bookingRest.models.enams.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+
 import java.util.Set;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class UserGetDTO {
+@AllArgsConstructor
+public class AuthResponse {
     private long id;
     private String email;
     private String firstName;
     private String lastName;
-    private String phone;
-    private Set<Role> roles;
-    private Boolean active;
-    private LocalDateTime dateCreate;
+    private Set<Role> role;
+    private String accessToken;
 }

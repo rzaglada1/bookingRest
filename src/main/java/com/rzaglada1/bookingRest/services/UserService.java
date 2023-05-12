@@ -1,6 +1,6 @@
 package com.rzaglada1.bookingRest.services;
 
-import com.rzaglada1.bookingRest.dto.dto_post.UserPostDTO;
+import com.rzaglada1.bookingRest.dto.dto_post.UserPostUpdateDTO;
 import com.rzaglada1.bookingRest.models.User;
 import com.rzaglada1.bookingRest.models.enams.Role;
 import com.rzaglada1.bookingRest.repositories.UserRepository;
@@ -11,9 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +22,7 @@ public class UserService {
 
     public boolean saveToBase(User user) {
         boolean isAllOk = false;
-        if (userRepository.findByEmail(user.getEmail()) == null) {
+        if (userRepository.findByEmail(user.getEmail()).isEmpty()) {
             user.setActive(true);
             // if first user then role = ADMIN
             if (userRepository.findAll().isEmpty()) {
@@ -33,7 +31,6 @@ public class UserService {
                 user.getRoles().add(Role.ROLE_USER);
             }
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-
             userRepository.save(user);
             isAllOk = true;
         }
@@ -41,14 +38,13 @@ public class UserService {
     }
 
     public void deleteById(long id) {
-        userRepository.delete(userRepository.getReferenceById(id));
+        userRepository.delete(userRepository.findById(id).orElseThrow());
     }
 
     public void deleteByPrincipal(Principal principal) {
         if (principal != null && userRepository.findById(getUserByPrincipal(principal).getId()).isPresent()) {
             userRepository.delete(userRepository.findById(getUserByPrincipal(principal).getId()).get());
         }
-
     }
 
 
@@ -68,19 +64,12 @@ public class UserService {
 
 
 
-    public boolean update(UserPostDTO user, long userId) {
+    public boolean update(UserPostUpdateDTO user, long userId) {
         boolean isAllOk = false;
         if (userRepository.findById(userId).isPresent()) {
             User userUpdate = userRepository.findById(userId).get();
             //update Role
-//            Set <Role> roleSet = userUpdate.getRoles();
-
-//            if (user.getRoleForm() != null) {
-//                roleSet.clear();
-//                roleSet.add(user.getRoleForm());
-//                userUpdate.setRoles(roleSet);
-//            }
-
+            userUpdate.setRoles(user.getRoles());
             userUpdate.setFirstName(user.getFirstName());
             userUpdate.setLastName(user.getLastName());
             userUpdate.setPhone(user.getPhone());
@@ -97,18 +86,18 @@ public class UserService {
             userRepository.save(userUpdate);
             isAllOk = true;
         }
-
         return isAllOk;
     }
 
-    public User findByEmail (String email) {
+
+    public Optional<User> findByEmail (String email) {
         return userRepository.findByEmail(email);
     }
 
     public User getUserByPrincipal(Principal principal) {
         User user = new User();
-        if (principal != null) {
-            user = userRepository.findByEmail(principal.getName());
+        if (principal != null && userRepository.findByEmail(principal.getName()).isPresent() ) {
+            user = userRepository.findByEmail(principal.getName()).get();
         }
         return user;
     }
