@@ -1,6 +1,5 @@
-package com.rzaglada1.bookingRest.dto.dto_get;
+package com.rzaglada1.bookingRest.dto.dto_get.simpleDTO;
 
-import com.rzaglada1.bookingRest.dto.dto_get.simpleDTO.HouseGetDTOSimple;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddressGetDto {
+public class AddressGetDtoSimple {
 
     private long id;
 
@@ -18,5 +17,4 @@ public class AddressGetDto {
     private String number;
     private String apartment;
 
-    private HouseGetDTOSimple house;
 }

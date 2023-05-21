@@ -1,6 +1,5 @@
-package com.rzaglada1.bookingRest.dto.dto_get;
+package com.rzaglada1.bookingRest.dto.dto_get.simpleDTO;
 
-import com.rzaglada1.bookingRest.dto.dto_get.simpleDTO.HouseGetDTOSimple;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ImageGetDTO {
+public class ImageGetDTOSimple {
 
     private long id;
 
@@ -17,7 +16,5 @@ public class ImageGetDTO {
     private long size;
     private String contentType;
     private byte[] photoToBytes;
-
-    private HouseGetDTOSimple house;
 
 }

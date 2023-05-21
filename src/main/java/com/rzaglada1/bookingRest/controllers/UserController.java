@@ -62,7 +62,10 @@ public class UserController {
 
     //new user
     @PostMapping("/new")
-    public ResponseEntity<?> createUser(@RequestBody @Valid UserPostDTO userPostDTO, BindingResult bindingResult) {
+    public ResponseEntity<?> createUser(
+            @RequestBody @Valid UserPostDTO userPostDTO
+            , BindingResult bindingResult
+    ) {
 
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest()

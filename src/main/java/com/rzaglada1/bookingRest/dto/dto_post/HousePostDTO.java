@@ -1,12 +1,12 @@
 package com.rzaglada1.bookingRest.dto.dto_post;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -14,28 +14,28 @@ import java.util.List;
 public class HousePostDTO {
     private long id;
 
-    @NotBlank(message = "{message.error.notBlank}")
-    @Length(max =50,  message = "{message.error.length}")
+    @NotNull(message = "{message.error.notNull-house-name}")
+    @Length(min = 1, max =50,  message = "{message.error.length-house-name}")
     private String name;
-    @NotBlank(message = "{message.error.notBlank}")
-    @Length(max =2000,  message = "{message.error.length2000}")
+    @NotNull(message = "{message.error.notNull-house-description}")
+    @Length(min = 1, max =2000,  message = "{message.error.length-house-description}")
     private String description;
 
-    @NotNull(message = "{message.error.notBlank}")
-    @Size(min = 1, max = 50,  message = "{message.error.numTourist}")
+    @NotNull(message = "{message.error.notNull-house-tourist}")
+    @Min(value = 1, message = "{message.error.min-house-tourist}")
+    @Max( value = 50, message = "{message.error.max-house-tourist}")
     private int numTourists;
-    @NotNull(message = "{message.error.notBlank}")
-    @Min(value = 0, message = "{message.error.min-price}")
+    @NotNull(message = "{message.error.notNull-house-price}")
+    @Min(value = 0, message = "{message.error.positive-house-price}")
     private double price;
 
+    @NotNull(message = "{message.error.notNull-house-isAvailable}")
     private Boolean isAvailable;
 
+    @NotNull(message = "{message.error.notNull-house-address}")
+    @Valid
     private AddressPostDto address;
+
+    @Valid
     private ImagePostDTO image;
-    private UserPostDTO user;
-
-//    private List<FeedbackPostDTO> feedbackList;
-//    private List<WishPostDTO> wishList;
-//    private List<OrderHistoryPostDTO> orderHistoryList;
-
 }

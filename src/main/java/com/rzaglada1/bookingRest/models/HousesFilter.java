@@ -20,16 +20,16 @@ public class HousesFilter {
 
 
     @Length(max = 50, message = "{message.error.length}")
-    private String country;
+    private String country = "%";
     @Length(max = 50, message = "{message.error.length}")
-    private String city;
+    private String city = "%";
     @FutureOrPresent(message = "Дата менша за поточну")
-    private LocalDate date;
+    private LocalDate date = LocalDate.now();
     @Min(value = 1, message = "{message.error.min-filter-days}")
     @Max( value = 50, message = "{message.error.max-filter-days}")
-    private Integer days;
+    private Integer days = 1;
     @Min(value = 1, message = "{message.error.min-filter-people}")
     @Max( value = 50, message = "{message.error.max-filter-people}")
-    private Integer people = 2;
+    private Integer people = 1;
 
 }

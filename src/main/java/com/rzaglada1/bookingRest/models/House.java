@@ -38,7 +38,6 @@ public class House {
     @Min(value = 0, message = "ціна від 0")
     private double price;
 
-
     private Boolean isAvailable;
 
     private LocalDateTime dateCreate;
@@ -84,6 +83,9 @@ public class House {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", dateCreate=" + dateCreate +
+                ", feedback=" + feedbackList +
+//                ", wishList=" + wishList +
+//                ", orderHistoryList=" + orderHistoryList +
                 '}' +'\n';
     }
 }

@@ -31,4 +31,5 @@ public class Wish {
     private void init () {
         dateCreate = LocalDateTime.now();
     }
+
 }

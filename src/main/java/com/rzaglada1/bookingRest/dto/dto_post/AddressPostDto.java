@@ -2,6 +2,8 @@ package com.rzaglada1.bookingRest.dto.dto_post;
 
 import com.rzaglada1.bookingRest.dto.dto_get.HouseGetDTO;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,26 +16,23 @@ public class AddressPostDto {
 
     private long id;
 
-    @NotBlank(message = "{message.error.notBlank}")
-    @Length(max = 50, message = "{message.error.length}")
+    @NotNull(message = "{message.error.notNull-address-country}")
+    @Length(min = 1, max = 50, message = "{message.error.length-address-country}")
     private String country;
 
-    @NotBlank(message = "{message.error.notBlank}")
-    @Length(max = 50, message = "{message.error.length}")
+    @NotNull(message = "{message.error.notNull-address-city}")
+    @Length(min = 1, max = 50, message = "{message.error.length-address-city}")
     private String city;
 
-    @NotBlank(message = "{message.error.notBlank}")
-    @Length(max = 50, message = "{message.error.length}")
+    @NotNull(message = "{message.error.notNull-address-street}")
+    @Length(min = 1, max = 50, message = "{message.error.length-address-street}")
     private String street;
 
-    @NotBlank(message = "{message.error.notBlank}")
-    @Length(max = 50, message = "{message.error.length}")
+    @NotNull(message = "{message.error.notNull-house-number}")
+    @Length(min = 1, max = 5, message = "{message.error.length-house-number}")
     private String number;
 
+    @NotNull(message = "{message.error.notNull-house-apartment}")
     private String apartment;
-
-    private HouseGetDTO house;
-
-
 
 }

@@ -1,5 +1,8 @@
 package com.rzaglada1.bookingRest.dto.dto_post;
 
+import com.rzaglada1.bookingRest.dto.dto_get.simpleDTO.HousePostSimpleDTO;
+import com.rzaglada1.bookingRest.dto.dto_get.simpleDTO.UserPostSimpleDTO;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -25,7 +28,12 @@ public class FeedbackPostDTO {
     @Length(max =2000,  message = "{message.error.length2000}")
     private String description;
 
-    private UserPostDTO user;
-    private HousePostDTO house;
+    @NotNull
+    @Valid
+    private UserPostSimpleDTO user;
+
+    @NotNull
+    @Valid
+    private HousePostSimpleDTO house;
 
 }

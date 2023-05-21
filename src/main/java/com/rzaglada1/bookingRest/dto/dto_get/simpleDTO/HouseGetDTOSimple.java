@@ -1,6 +1,9 @@
-package com.rzaglada1.bookingRest.dto.dto_get;
+package com.rzaglada1.bookingRest.dto.dto_get.simpleDTO;
 
-import com.rzaglada1.bookingRest.dto.dto_get.simpleDTO.*;
+import com.rzaglada1.bookingRest.dto.dto_get.AddressGetDto;
+import com.rzaglada1.bookingRest.dto.dto_get.FeedbackGetDTO;
+import com.rzaglada1.bookingRest.dto.dto_get.ImageGetDTO;
+import com.rzaglada1.bookingRest.dto.dto_post.UserPostDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +13,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class HouseGetDTO {
+public class HouseGetDTOSimple {
     private long id;
 
     private String name;
@@ -21,9 +24,10 @@ public class HouseGetDTO {
 
     private AddressGetDtoSimple address;
     private ImageGetDTOSimple image;
-    private UserGetDTOSimple user;
 
-    private List<FeedbackGetDTOSimple> feedbackList;
-    private List<WishGetDTOSimple> wishList;
-    private List<OrderHistoryGetDTOSimple> orderHistoryList;
+
+//    private List<FeedbackGetDTOSimple> feedbackList;
+
+
+
 }
