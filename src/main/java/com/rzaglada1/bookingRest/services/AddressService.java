@@ -5,8 +5,6 @@ import com.rzaglada1.bookingRest.repositories.AddressRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class AddressService {
@@ -17,7 +15,5 @@ public class AddressService {
         repository.save(address);
     }
 
-    public Optional<Address> getById (long id) {
-        return repository.findById(id);
-    }
+
 }

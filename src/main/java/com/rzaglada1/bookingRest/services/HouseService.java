@@ -1,19 +1,16 @@
 package com.rzaglada1.bookingRest.services;
 
 import com.rzaglada1.bookingRest.models.*;
-import com.rzaglada1.bookingRest.repositories.AddressRepository;
 import com.rzaglada1.bookingRest.repositories.HouseRepository;
 import com.rzaglada1.bookingRest.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,7 +18,6 @@ import java.util.Optional;
 public class HouseService {
     private final HouseRepository repositoryHouse;
     private final UserRepository repositoryUser;
-    private final AddressRepository repositoryAddress;
 
 
     public void saveToBase(Principal principal, House house) throws IOException {
@@ -34,7 +30,6 @@ public class HouseService {
         house.setUser(getUserByPrincipal(principal));
 
 //        // set address
-//        house.setAddress(address);
         house.getAddress().setHouse(house);
 
         // clear spase in description
@@ -102,22 +97,7 @@ public class HouseService {
         return repositoryUser.findByEmail(principal.getName()).orElseThrow();
     }
 
-    private List<House> getAllHouse() {
-        return repositoryHouse.findAll();
-    }
 
-    private Image fileToImage(MultipartFile file, House house) throws IOException {
-        // set image
-        Image image = new Image();
-        image.setHouse(house);
-        image.setName(file.getName());
-        image.setFileName(file.getOriginalFilename());
-        image.setContentType(file.getContentType());
-        image.setSize(file.getSize());
-        image.setPhotoToBytes(file.getBytes());
-
-        return image;
-    }
 
     public void deleteById(long id) {
         repositoryHouse.delete(repositoryHouse.getReferenceById(id));
@@ -157,7 +137,6 @@ public class HouseService {
     public boolean isDateFree(OrderHistory orderHistory, long houseId) {
         LocalDate getDataBookingStart = orderHistory.getDataBookingStart();
         LocalDate getDataBookingEnd = orderHistory.getDataBookingEnd();
-        int numTourist = orderHistory.getNumTourists();
         return repositoryHouse.
                 getHouseByDate(getDataBookingStart, getDataBookingEnd.minusDays(1), houseId).size() == 0;
     }

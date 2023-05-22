@@ -1,6 +1,7 @@
 package com.rzaglada1.bookingRest.dto.dto_get;
 
 import com.rzaglada1.bookingRest.dto.dto_get.simpleDTO.HouseGetDTOSimple;
+import com.rzaglada1.bookingRest.dto.dto_get.simpleDTO.UserGetDTOSimple;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,6 @@ public class OrderHistoryGetDTO {
     private long numDaysBooking;
     private int numTourists;
 
-    private UserGetDTO user;
+    private UserGetDTOSimple user;
     private HouseGetDTOSimple house;
 }

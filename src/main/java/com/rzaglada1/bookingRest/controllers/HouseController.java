@@ -2,11 +2,10 @@ package com.rzaglada1.bookingRest.controllers;
 
 import com.rzaglada1.bookingRest.dto.dto_get.HouseGetDTO;
 import com.rzaglada1.bookingRest.dto.dto_post.HousePostDTO;
-import com.rzaglada1.bookingRest.dto.dto_post.OrderHistoryPostDTO;
 import com.rzaglada1.bookingRest.models.House;
-import com.rzaglada1.bookingRest.models.OrderHistory;
 import com.rzaglada1.bookingRest.models.enams.Role;
-import com.rzaglada1.bookingRest.services.*;
+import com.rzaglada1.bookingRest.services.HouseService;
+import com.rzaglada1.bookingRest.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -17,9 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -33,8 +30,6 @@ import java.util.stream.Collectors;
 public class HouseController {
     private final HouseService houseService;
     private final UserService userService;
-    private final WishService wishService;
-    private final OrderHistoryService orderHistoryService;
 
 
     private final ModelMapper modelMapper = new ModelMapper();
@@ -42,9 +37,9 @@ public class HouseController {
 
     // request form all  house
     @GetMapping
-    public ResponseEntity<Page<HouseGetDTO>>  houseAll(
+    public ResponseEntity<Page<HouseGetDTO>> houseAll(
             Principal principal
-            , @PageableDefault( sort = {"id"}, direction = Sort.Direction.ASC, size = 3) Pageable pageable) {
+            , @PageableDefault(sort = {"id"}, direction = Sort.Direction.ASC, size = 3) Pageable pageable) {
 
         Page<House> housePage;
         if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN)) {
@@ -57,11 +52,10 @@ public class HouseController {
     }
 
 
-
     // create new house
     @PostMapping
     public ResponseEntity<?> createHouse(
-              @RequestBody @Valid HousePostDTO housePostDTO
+            @RequestBody @Valid HousePostDTO housePostDTO
             , BindingResult bindingResultHouse
             , Principal principal
     ) {
@@ -82,23 +76,18 @@ public class HouseController {
     }
 
 
-
-
     // request form edit house by id
     @GetMapping("/{id}")
     public ResponseEntity<?> houseEdit(
             @PathVariable Long id
-            , Principal principal) {
-
-        if (principal != null && houseService.getById(id).isPresent()) {
-            if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN)
-                    || houseService.getHouseById(id).orElseThrow().getUser().equals(userService.getUserByPrincipal(principal))
             ) {
+
+        if (houseService.getById(id).isPresent()) {
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(responseHouseGetDTO(id));
             }
-        }
+//        }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
@@ -134,7 +123,6 @@ public class HouseController {
     }
 
 
-
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> houseDelete(@PathVariable("id") Long id, Principal principal) {
         if (principal != null && houseService.getById(id).isPresent()) {
@@ -151,76 +139,15 @@ public class HouseController {
     }
 
 
-
-
-
-
-
-
-    @PostMapping("/{houseId}/prebooking")
-    public ResponseEntity<?> housePreBooking(
-            @PathVariable("houseId") long houseId
-            ,@RequestBody @Valid OrderHistoryPostDTO orderHistoryPostDTO
-            , BindingResult bindingResult
-            ) {
-
-        System.out.println(orderHistoryPostDTO);
-
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(mapErrors(bindingResult));
-        }
-
-
-        OrderHistory orderHistory = modelMapper.map(orderHistoryPostDTO, OrderHistory.class);
-
-        orderHistory.setDataBookingEnd(orderHistory.getDataBookingStart().plusDays(orderHistory.getNumDaysBooking()));
-        House house = houseService.getHouseById(houseId).orElseThrow();
-        if (houseService.isDateFree(orderHistory, houseId) && house.getNumTourists() >= orderHistory.getNumTourists()) {
-            orderHistory.setHouse(house);
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(orderHistory);
-        }
-
-
-        return new ResponseEntity<>(HttpStatus.OK);
-
-
-    }
-
-
-
-    @PostMapping("/{houseId}/booking")
-    public String hoseBooking(
-            @PathVariable("houseId") long houseId,
-            OrderHistory orderHistory,
-            Model model,
-            Principal principal) {
-
-        if (houseService.getHouseById(houseId).isPresent() && principal != null) {
-            House house = houseService.getHouseById(houseId).get();
-            orderHistory.setHouse(house);
-            orderHistoryService.saveToBase(orderHistory, houseId, principal);
-            model.addAttribute("message", "Заброньовано");
-        } else {
-            model.addAttribute("message", "Щось пішло не так. Спробуйте знову.");
-        }
-
-        return "/message";
-
-    }
-
-
-    private Map<String, String> mapErrors (BindingResult bindingResult) {
+    private Map<String, String> mapErrors(BindingResult bindingResult) {
         return bindingResult.getFieldErrors().stream().collect(
-                Collectors.toMap(fieldError -> fieldError.getField() + "Error", FieldError::getDefaultMessage));
+                Collectors.toMap(fieldError -> fieldError.getField() + "Error", f -> {
+                    if (f.getDefaultMessage() != null) {
+                        return f.getDefaultMessage();
+                    }
+                    return f.getDefaultMessage();
+                }));
     }
-
-
-
-
 
 
     private HouseGetDTO responseHouseGetDTO(long id) {

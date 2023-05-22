@@ -1,6 +1,5 @@
 package com.rzaglada1.bookingRest.services;
 
-import com.rzaglada1.bookingRest.models.Feedback;
 import com.rzaglada1.bookingRest.models.House;
 import com.rzaglada1.bookingRest.models.OrderHistory;
 import com.rzaglada1.bookingRest.models.User;
@@ -11,8 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -31,14 +28,6 @@ public class OrderHistoryService {
             orderHistory.setHouse(house);
             orderHistoryRepository.save(orderHistory);
         }
-    }
-
-    public List<OrderHistory> findOrdersByHouseForFree (House house) {
-        return orderHistoryRepository.findOrderHistoriesByHouse(house).stream()
-                .filter (e->e.getDataBookingEnd().isAfter(LocalDate.now() )
-                        || e.getDataBookingEnd().equals(LocalDate.now()))
-                .sorted(Comparator.comparing(OrderHistory::getDataBookingStart))
-                .toList();
     }
 
     public Page<OrderHistory> findOrdersByUser(User user, Pageable pageable) {

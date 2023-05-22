@@ -18,29 +18,31 @@ import java.time.LocalDate;
 public class OrderHistoryPostDTO {
     private long id;
 
-    @NotNull(message = "{message.error.notBlank}")
-    @Min(value = 0, message = "{message.error.min-price}")
+    @NotNull(message = "{message.error.notNull-history-price}")
+    @Min(value = 0, message = "{message.error.min-history-price}")
     private double price;
 
-    @NotNull(message = "{message.error.notBlank}")
-    @FutureOrPresent(message = "{message.error.date-less}")
+    @NotNull(message = "{message.error.notNull-history-bookingStart}")
+    @FutureOrPresent(message = "{message.error.future-history-bookingStart}")
     private LocalDate dataBookingStart;
 
+    @NotNull(message = "{message.error.notNull-history-bookingEnd}")
+    @FutureOrPresent(message = "{message.error.future-history-bookingEnd}")
     private LocalDate dataBookingEnd ;
 
-    @NotNull
+    @NotNull(message = "{message.error.notNull-history-days}")
     @Min(value = 1, message = "{message.error.numDaysBooking}")
     @Max( value = 50, message = "{message.error.numDaysBooking}")
     private long numDaysBooking;
 
     @NotNull
-    @Min(value = 1, message = "{message.error.numTourist}")
-    @Max( value = 50, message = "{message.error.numTourist}")
+    @Min(value = 1, message = "{message.error.min-history-days}")
+    @Max( value = 50, message = "{message.error.max-history-days}")
     private int numTourists;
 
-    @NotNull
+    @NotNull(message = "{message.error.notNull-history-user}")
     private UserPostSimpleDTO user;
 
-    @NotNull
+    @NotNull(message = "{message.error.notNull-history-house}")
     private HousePostSimpleDTO house;
 }

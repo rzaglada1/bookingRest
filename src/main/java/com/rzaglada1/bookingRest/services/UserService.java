@@ -58,9 +58,7 @@ public class UserService {
     }
 
 
-    public boolean isEmpty () {
-        return userRepository.size() == 0;
-    }
+
 
 
 

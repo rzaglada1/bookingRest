@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Type;
@@ -67,9 +66,14 @@ public class FeedbackController {
     }
 
 
-    private Map<String, String> mapErrors(BindingResult bindingResult) {
+    private Map<String, String> mapErrors (BindingResult bindingResult) {
         return bindingResult.getFieldErrors().stream().collect(
-                Collectors.toMap(fieldError -> fieldError.getField() + "Error", FieldError::getDefaultMessage));
+                Collectors.toMap(fieldError -> fieldError.getField() + "Error", f-> {
+                    if (f.getDefaultMessage() != null) {
+                        return f.getDefaultMessage();
+                    }
+                    return f.getDefaultMessage();
+                }));
     }
 
 

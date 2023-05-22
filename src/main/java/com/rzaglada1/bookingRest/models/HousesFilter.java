@@ -18,7 +18,6 @@ import java.time.LocalDate;
 @Component
 public class HousesFilter {
 
-
     @Length(max = 50, message = "{message.error.length}")
     private String country = "%";
     @Length(max = 50, message = "{message.error.length}")

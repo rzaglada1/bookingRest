@@ -1,6 +1,5 @@
 package com.rzaglada1.bookingRest.repositories;
 
-import com.rzaglada1.bookingRest.models.Feedback;
 import com.rzaglada1.bookingRest.models.House;
 import com.rzaglada1.bookingRest.models.OrderHistory;
 import com.rzaglada1.bookingRest.models.User;

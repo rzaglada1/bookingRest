@@ -15,7 +15,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,7 +34,6 @@ public class AuthController {
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody @Valid AuthRequest request, BindingResult bindingResult) {
 
-        System.out.println(request);
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest()
                     .contentType(MediaType.APPLICATION_JSON)
@@ -66,9 +64,14 @@ public class AuthController {
 
 
 
-    private Map<String, String> mapErrors(BindingResult bindingResult) {
+    private Map<String, String> mapErrors (BindingResult bindingResult) {
         return bindingResult.getFieldErrors().stream().collect(
-                Collectors.toMap(fieldError -> fieldError.getField() + "Error", FieldError::getDefaultMessage));
+                Collectors.toMap(fieldError -> fieldError.getField() + "Error", f-> {
+                    if (f.getDefaultMessage() != null) {
+                        return f.getDefaultMessage();
+                    }
+                    return f.getDefaultMessage();
+                }));
     }
 
 }

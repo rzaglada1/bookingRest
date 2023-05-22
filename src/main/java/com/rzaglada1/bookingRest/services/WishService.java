@@ -27,7 +27,7 @@ public class WishService {
     public boolean saveToBase (Wish wish, long houseId, Principal principal) {
         boolean isAllOk = false;
         if (!wishRepository.existsByHouseIdAndUser(houseId, getUserByPrincipal(principal).orElseThrow())) {
-            wish.setHouse(houseRepository.findById(houseId).get());
+            wish.setHouse(houseRepository.findById(houseId).orElseThrow());
             wish.setUser(getUserByPrincipal(principal).orElseThrow());
             wishRepository.save(wish);
             isAllOk = true;
@@ -40,10 +40,6 @@ public class WishService {
         if (wishRepository.existsByHouseIdAndUser(houseId, getUserByPrincipal(principal).orElseThrow() )) {
             wishRepository.delete(wishRepository.getWishByHouseIdAndUser(houseId, getUserByPrincipal(principal).orElseThrow()).orElseThrow() );
         }
-    }
-
-    public boolean existsByHouseIdAndUser(long houseId, Principal principal){
-        return wishRepository.existsByHouseIdAndUser(houseId, getUserByPrincipal(principal).orElseThrow());
     }
 
 

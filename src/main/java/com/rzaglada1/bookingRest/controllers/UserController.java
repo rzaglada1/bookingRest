@@ -18,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -157,7 +156,6 @@ public class UserController {
 
     @DeleteMapping(value = {"/delete", "/delete/{id}"})
     public ResponseEntity<?> userDelete(Principal principal, @PathVariable(required = false) String id) {
-        if (userService.getUserByPrincipal(principal) != null) {
             User user = userService.getUserByPrincipal(principal);
             long userId = user.getId();
             if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN) && id != null) {
@@ -169,7 +167,6 @@ public class UserController {
             } catch (Exception e) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
-        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -180,9 +177,14 @@ public class UserController {
     }
 
 
-    private Map<String, String> mapErrors(BindingResult bindingResult) {
+    private Map<String, String> mapErrors (BindingResult bindingResult) {
         return bindingResult.getFieldErrors().stream().collect(
-                Collectors.toMap(fieldError -> fieldError.getField() + "Error", FieldError::getDefaultMessage));
+                Collectors.toMap(fieldError -> fieldError.getField() + "Error", f-> {
+                    if (f.getDefaultMessage() != null) {
+                        return f.getDefaultMessage();
+                    }
+                    return f.getDefaultMessage();
+                }));
     }
 
 
