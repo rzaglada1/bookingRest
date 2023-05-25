@@ -5,6 +5,7 @@ import com.rzaglada1.bookingRest.token.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,17 +33,15 @@ public class ConfigSecurity {
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
+
                 .requestMatchers(
                         "/auth/login"
                         , "/find"
                         , "/images/*"
-                        , "/houses/*/detail"
-                        , "/users/new"
+//                        , "/houses/*/detail"
                 )
                 .permitAll()
-
-
-//                .requestMatchers(GET, "/api/v1/management/**").hasAnyAuthority(Role.ROLE_ADMIN.name(), Role.ROLE_USER.name())
+                .requestMatchers(HttpMethod.POST, "/users").permitAll()
 
 
                 .anyRequest()

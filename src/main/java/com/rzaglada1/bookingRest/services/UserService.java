@@ -5,6 +5,7 @@ import com.rzaglada1.bookingRest.models.User;
 import com.rzaglada1.bookingRest.models.enams.Role;
 import com.rzaglada1.bookingRest.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.util.Optional;
 
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -20,6 +22,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
 
+    @CacheEvict(value="user", allEntries=true)
     public boolean saveToBase(User user) {
         boolean isAllOk = false;
         if (userRepository.findByEmail(user.getEmail()).isEmpty()) {
@@ -37,20 +40,16 @@ public class UserService {
         return isAllOk;
     }
 
+    @CacheEvict(value="user", allEntries=true)
     public void deleteById(long id) {
         userRepository.delete(userRepository.findById(id).orElseThrow());
-    }
-
-    public void deleteByPrincipal(Principal principal) {
-        if (principal != null && userRepository.findById(getUserByPrincipal(principal).getId()).isPresent()) {
-            userRepository.delete(userRepository.findById(getUserByPrincipal(principal).getId()).get());
-        }
     }
 
 
     public Page<User> getAllPageable(Pageable pageable) {
         return userRepository.findAll(pageable);
     }
+
 
 
     public Optional<User> getById(long id) {
@@ -61,7 +60,7 @@ public class UserService {
 
 
 
-
+    @CacheEvict(value="user", allEntries=true)
     public boolean update(UserPostUpdateDTO user, long userId) {
         boolean isAllOk = false;
         if (userRepository.findById(userId).isPresent()) {
@@ -88,15 +87,18 @@ public class UserService {
     }
 
 
+
     public Optional<User> findByEmail (String email) {
         return userRepository.findByEmail(email);
     }
 
+
+
+
     public User getUserByPrincipal(Principal principal) {
-        User user = new User();
-        if (principal != null && userRepository.findByEmail(principal.getName()).isPresent() ) {
-            user = userRepository.findByEmail(principal.getName()).get();
-        }
+        System.out.println("principal1");
+        User user = userRepository.findByEmail(principal.getName()).orElseThrow();
+        System.out.println("principal2");
         return user;
     }
 

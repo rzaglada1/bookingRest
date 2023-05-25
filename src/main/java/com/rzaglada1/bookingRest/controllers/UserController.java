@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -60,18 +61,16 @@ public class UserController {
 
 
     //new user
-    @PostMapping("/new")
+    @PostMapping
     public ResponseEntity<?> createUser(
             @RequestBody @Valid UserPostDTO userPostDTO
             , BindingResult bindingResult
     ) {
-
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(mapErrors(bindingResult));
         }
-
         if (userService.findByEmail(userPostDTO.getEmail()).isPresent()) {
             Map<String, String> errorPasswordOld = Map.of("emailError", "such user already exists");
             return ResponseEntity.badRequest()
@@ -83,7 +82,6 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.CREATED);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
     }
 
     //update for role admin
@@ -170,10 +168,11 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
     @GetMapping("/param")
+
     public ResponseEntity<?> loginParam(Principal principal) {
-        long idPrincipal = userService.getUserByPrincipal(principal).getId();
-        return ResponseEntity.ok(responseUserGetDTO(idPrincipal));
+        return ResponseEntity.ok(responseUserGetDTO(principal));
     }
 
 
@@ -188,10 +187,13 @@ public class UserController {
     }
 
 
+    private UserGetDTO responseUserGetDTO(Principal principal) {
+        User user = userService.getUserByPrincipal(principal);
+        return modelMapper.map(user, UserGetDTO.class);
+    }
     private UserGetDTO responseUserGetDTO(long id) {
         User user = userService.getById(id).orElseThrow();
         return modelMapper.map(user, UserGetDTO.class);
     }
-
 
 }

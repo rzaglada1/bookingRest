@@ -4,6 +4,7 @@ import com.rzaglada1.bookingRest.models.*;
 import com.rzaglada1.bookingRest.repositories.HouseRepository;
 import com.rzaglada1.bookingRest.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ public class HouseService {
     }
 
 
+    @CacheEvict(value="image", allEntries=true)
     public void update(House house, long id) throws IOException {
         Optional<House> houseOptional = getById(id);
         if (houseOptional.isPresent()) {

@@ -87,7 +87,6 @@ public class HouseController {
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(responseHouseGetDTO(id));
             }
-//        }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
@@ -105,10 +104,9 @@ public class HouseController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(mapErrors(bindingResultHouse));
         }
-
-        if (principal != null && houseService.getById(id).isPresent()) {
+        if (houseService.getById(id).isPresent()) {
             if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN)
-                    || houseService.getHouseById(id).orElseThrow().getUser().equals(userService.getUserByPrincipal(principal))
+                    || houseService.getHouseById(id).orElseThrow().getUser().getId() == userService.getUserByPrincipal(principal).getId()
             ) {
                 try {
                     House house = modelMapper.map(housePostDTO, House.class);
@@ -127,7 +125,7 @@ public class HouseController {
     public ResponseEntity<?> houseDelete(@PathVariable("id") Long id, Principal principal) {
         if (principal != null && houseService.getById(id).isPresent()) {
             if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN)
-                    || houseService.getHouseById(id).orElseThrow().getUser().equals(userService.getUserByPrincipal(principal))
+                    || houseService.getHouseById(id).orElseThrow().getUser().getId() == userService.getUserByPrincipal(principal).getId()
             ) {
                 houseService.deleteById(id);
                 return new ResponseEntity<>(HttpStatus.OK);

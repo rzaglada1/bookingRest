@@ -34,6 +34,7 @@ public class AuthController {
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody @Valid AuthRequest request, BindingResult bindingResult) {
 
+        System.out.println("request " + request);
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest()
                     .contentType(MediaType.APPLICATION_JSON)
@@ -41,10 +42,12 @@ public class AuthController {
         }
 
         try {
+            System.out.println("request " + request);
             Authentication authentication = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(), request.getPassword())
             );
+            System.out.println("111");
 
             User user = (User) authentication.getPrincipal();
             String accessToken = jwtService.generateToken(user);
