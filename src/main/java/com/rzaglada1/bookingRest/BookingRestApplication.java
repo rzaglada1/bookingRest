@@ -1,12 +1,12 @@
 package com.rzaglada1.bookingRest;
 
-import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 @SpringBootApplication
-@RequiredArgsConstructor
+@OpenAPIDefinition
 public class BookingRestApplication {
 
 	public static void main(String[] args) {

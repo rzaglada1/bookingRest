@@ -6,9 +6,14 @@ import com.rzaglada1.bookingRest.models.House;
 import com.rzaglada1.bookingRest.models.enams.Role;
 import com.rzaglada1.bookingRest.services.HouseService;
 import com.rzaglada1.bookingRest.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,10 +41,16 @@ public class HouseController {
 
 
     // request form all  house
+    @Operation(summary = "Get houses list")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "Found user houses", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            } )
     @GetMapping
     public ResponseEntity<Page<HouseGetDTO>> houseAll(
             Principal principal
-            , @PageableDefault(sort = {"id"}, direction = Sort.Direction.ASC, size = 3) Pageable pageable) {
+            , @ParameterObject @PageableDefault(sort = {"id"}, direction = Sort.Direction.ASC, size = 3) Pageable pageable) {
 
         Page<House> housePage;
         if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN)) {
@@ -53,6 +64,13 @@ public class HouseController {
 
 
     // create new house
+    @Operation(summary = "Create new house")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "201", description = "House created", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "400", description = "Invalid validation", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            })
     @PostMapping
     public ResponseEntity<?> createHouse(
             @RequestBody @Valid HousePostDTO housePostDTO
@@ -77,8 +95,16 @@ public class HouseController {
 
 
     // request form edit house by id
+    @Operation(summary = "Get house by id")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "Found the house by id", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "400", description = "Invalid id supplied", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Users not found", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            })
     @GetMapping("/{id}")
-    public ResponseEntity<?> houseEdit(
+    public ResponseEntity<HouseGetDTO> houseEdit(
             @PathVariable Long id
             ) {
 
@@ -92,6 +118,14 @@ public class HouseController {
 
 
     // update house
+    @Operation(summary = "House update")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "House updated", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "400", description = "Invalid validation", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            })
+
     @PutMapping("/{id}")
     public ResponseEntity<?> houseUpdate(
             @RequestBody @Valid HousePostDTO housePostDTO
@@ -121,7 +155,15 @@ public class HouseController {
     }
 
 
-    @DeleteMapping("/delete/{id}")
+    @Operation(summary = "Hose delete")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "House deleted", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "400", description = "Invalid validation", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            })
+
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> houseDelete(@PathVariable("id") Long id, Principal principal) {
         if (principal != null && houseService.getById(id).isPresent()) {
             if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN)

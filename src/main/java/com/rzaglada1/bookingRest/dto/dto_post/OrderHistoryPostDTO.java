@@ -1,7 +1,7 @@
 package com.rzaglada1.bookingRest.dto.dto_post;
 
-import com.rzaglada1.bookingRest.dto.dto_get.simpleDTO.HousePostSimpleDTO;
-import com.rzaglada1.bookingRest.dto.dto_get.simpleDTO.UserPostSimpleDTO;
+import com.rzaglada1.bookingRest.dto.dto_post.simpleDTO.HousePostSimpleDTO;
+import com.rzaglada1.bookingRest.dto.dto_post.simpleDTO.UserPostSimpleDTO;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -16,19 +16,19 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderHistoryPostDTO {
-    private long id;
-
-    @NotNull(message = "{message.error.notNull-history-price}")
-    @Min(value = 0, message = "{message.error.min-history-price}")
-    private double price;
+//    private long id;
+//
+//    @NotNull(message = "{message.error.notNull-history-price}")
+//    @Min(value = 0, message = "{message.error.min-history-price}")
+//    private double price;
 
     @NotNull(message = "{message.error.notNull-history-bookingStart}")
     @FutureOrPresent(message = "{message.error.future-history-bookingStart}")
     private LocalDate dataBookingStart;
 
-    @NotNull(message = "{message.error.notNull-history-bookingEnd}")
-    @FutureOrPresent(message = "{message.error.future-history-bookingEnd}")
-    private LocalDate dataBookingEnd ;
+//    @NotNull(message = "{message.error.notNull-history-bookingEnd}")
+//    @FutureOrPresent(message = "{message.error.future-history-bookingEnd}")
+//    private LocalDate dataBookingEnd ;
 
     @NotNull(message = "{message.error.notNull-history-days}")
     @Min(value = 1, message = "{message.error.numDaysBooking}")

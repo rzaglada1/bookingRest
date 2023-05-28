@@ -7,8 +7,14 @@ import com.rzaglada1.bookingRest.models.Wish;
 import com.rzaglada1.bookingRest.services.HouseService;
 import com.rzaglada1.bookingRest.services.UserService;
 import com.rzaglada1.bookingRest.services.WishService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -51,11 +57,20 @@ public class WishController {
     }
 
 
-    @GetMapping("/{id}")
-    public ResponseEntity<WishGetDTO> getWishByHouseId(
-            @PathVariable Long id
+    @Operation(summary = "Get wish by house id")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "The id house is on the wish list", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "400", description = "Invalid id supplied", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Wishes not found", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            })
+
+    @GetMapping("/{idHouse}")
+    public ResponseEntity<WishGetDTO> getWishByHouseId( @Parameter(description = "id of book to be searched")
+            @PathVariable Long idHouse
             , Principal principal) {
-        Optional<Wish> wish = wishService.getWishByUserAndHouse(id, userService.getUserByPrincipal(principal));
+        Optional<Wish> wish = wishService.getWishByUserAndHouse(idHouse, userService.getUserByPrincipal(principal));
         if (wish.isPresent()) {
             WishGetDTO wishGetDTO = modelMapper.map(wish.get(), WishGetDTO.class);
             return ResponseEntity.ok(wishGetDTO);
@@ -65,28 +80,39 @@ public class WishController {
 
 
 
+    @Operation(summary = "Get wishes list by authentication user")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "Found wishes list", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            } )
     @GetMapping
     public ResponseEntity<Page<WishGetDTO>> wishesByUser(
             Principal principal
-            , @PageableDefault(size = 3) Pageable pageable) {
+            ,@ParameterObject @PageableDefault(size = 3) Pageable pageable) {
         Page<Wish> wishPage = wishService.getWishByUser(principal, pageable);
         Page<WishGetDTO> wishGetDTOPage = wishPage.map(objectEntity -> modelMapper.map(objectEntity, WishGetDTO.class));
         return ResponseEntity.ok(wishGetDTOPage);
     }
 
 
-    @DeleteMapping("/{houseId}")
+    @Operation(summary = "Wish by house id delete")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "Wish deleted", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            })
+
+    @DeleteMapping("/{idHouse}")
     public ResponseEntity<?> wishes(
-              @PathVariable long houseId
+              @PathVariable long idHouse
             , Principal principal
              ) {
-        if (houseService.getHouseById(houseId).isPresent() ) {
-            wishService.deleteFromBase(houseId, principal);
+        if (houseService.getHouseById(idHouse).isPresent() ) {
+            wishService.deleteFromBase(idHouse, principal);
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
-
 
 }

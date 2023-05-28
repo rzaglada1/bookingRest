@@ -22,13 +22,13 @@ public class HousesFilter {
     private String country = "%";
     @Length(max = 50, message = "{message.error.length}")
     private String city = "%";
-    @FutureOrPresent(message = "Дата менша за поточну")
-    private LocalDate date = LocalDate.now();
-    @Min(value = 1, message = "{message.error.min-filter-days}")
-    @Max( value = 50, message = "{message.error.max-filter-days}")
+    @FutureOrPresent(message = "{message.error.date-less}")
+    private LocalDate date ;
+    @Min(value = 1, message = "{message.error.days}")
+    @Max( value = 90, message = "{message.error.days}")
     private Integer days = 1;
-    @Min(value = 1, message = "{message.error.min-filter-people}")
-    @Max( value = 50, message = "{message.error.max-filter-people}")
+    @Min(value = 1, message = "{message.error.numTourists}")
+    @Max( value = 50, message = "{message.error.numTourists}")
     private Integer people = 1;
 
 }

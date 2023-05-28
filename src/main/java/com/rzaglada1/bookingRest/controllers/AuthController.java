@@ -5,6 +5,11 @@ import com.rzaglada1.bookingRest.models.User;
 import com.rzaglada1.bookingRest.token.AuthRequest;
 import com.rzaglada1.bookingRest.token.AuthResponse;
 import com.rzaglada1.bookingRest.token.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,10 +36,17 @@ public class AuthController {
     private final JwtService jwtService;
 
 
+    @Operation(summary = "User authentication")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "Authentication ok",
+                            content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid id supplied", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Bad user or password", content = @Content),
+            })
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody @Valid AuthRequest request, BindingResult bindingResult) {
 
-        System.out.println("request " + request);
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest()
                     .contentType(MediaType.APPLICATION_JSON)
@@ -42,12 +54,10 @@ public class AuthController {
         }
 
         try {
-            System.out.println("request " + request);
             Authentication authentication = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(), request.getPassword())
             );
-            System.out.println("111");
 
             User user = (User) authentication.getPrincipal();
             String accessToken = jwtService.generateToken(user);

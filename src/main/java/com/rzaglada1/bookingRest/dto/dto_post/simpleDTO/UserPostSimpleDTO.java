@@ -1,4 +1,4 @@
-package com.rzaglada1.bookingRest.dto.dto_get.simpleDTO;
+package com.rzaglada1.bookingRest.dto.dto_post.simpleDTO;
 
 
 import jakarta.validation.constraints.Min;

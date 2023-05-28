@@ -29,8 +29,10 @@ public class UserService {
             user.setActive(true);
             // if first user then role = ADMIN
             if (userRepository.findAll().isEmpty()) {
+                user.getRoles().clear();
                 user.getRoles().add(Role.ROLE_ADMIN);
             } else {
+                user.getRoles().clear();
                 user.getRoles().add(Role.ROLE_USER);
             }
             user.setPassword(passwordEncoder.encode(user.getPassword()));

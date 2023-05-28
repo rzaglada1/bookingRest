@@ -2,6 +2,11 @@ package com.rzaglada1.bookingRest.controllers;
 
 import com.rzaglada1.bookingRest.models.Image;
 import com.rzaglada1.bookingRest.services.ImageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -21,6 +26,16 @@ import java.util.Optional;
 public class ImageController {
     private final ImageService imageService;
 
+
+    @Operation(summary = "Get image by id")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "Got image by id",
+                            content = @Content(schema = @Schema(implementation = ByteArrayInputStream.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid id supplied", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Image not found", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid token", content = @Content)
+            })
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getImageById (@PathVariable long id) {

@@ -39,9 +39,11 @@ public class ConfigSecurity {
                         , "/find"
                         , "/images/*"
 //                        , "/houses/*/detail"
+                        , "/*"
                 )
                 .permitAll()
                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                .requestMatchers("/v3/**", "/swagger-ui/**").permitAll()
 
 
                 .anyRequest()

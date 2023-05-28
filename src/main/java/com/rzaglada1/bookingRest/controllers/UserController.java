@@ -1,15 +1,22 @@
 package com.rzaglada1.bookingRest.controllers;
 
 import com.rzaglada1.bookingRest.dto.dto_get.UserGetDTO;
-import com.rzaglada1.bookingRest.dto.dto_post.UserPostDTO;
 import com.rzaglada1.bookingRest.dto.dto_post.UserPostUpdateDTO;
+import com.rzaglada1.bookingRest.dto.dto_post.simpleDTO.UserPostNewDTO;
 import com.rzaglada1.bookingRest.models.User;
 import com.rzaglada1.bookingRest.models.enams.Role;
 import com.rzaglada1.bookingRest.services.UserService;
 import com.rzaglada1.bookingRest.token.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -38,20 +45,42 @@ public class UserController {
     private final ModelMapper modelMapper = new ModelMapper();
 
 
+    @Operation(summary = "Get users list (only for role 'ADMIN')")
+    @ApiResponses(value =
+            {
+            @ApiResponse(responseCode = "200", description = "Found the all users", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            } )
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<UserGetDTO>> getAllUsersPage(@PageableDefault(size = 3) Pageable pageable) {
+    public ResponseEntity<Page<UserGetDTO>> getAllUsersPage(
+            @Parameter(description = "pageable properties", required = true, name = "Pageable", in = ParameterIn.QUERY)
+            @ParameterObject @PageableDefault(size = 3) Pageable pageable) {
+
         Page<User> pageUser = userService.getAllPageable(pageable);
         Page<UserGetDTO> userGetDTOPage = pageUser.map(objectEntity -> modelMapper.map(objectEntity, UserGetDTO.class));
         return ResponseEntity.ok(userGetDTOPage);
     }
 
 
-    @GetMapping({"/{id}"})
-    public ResponseEntity<?> getUsersById(@PathVariable long id, Principal principal) {
-        long idPrincipal = userService.getUserByPrincipal(principal).getId();
+    @Operation(summary = "Get user by id")
+    @ApiResponses(value =
+            {
+            @ApiResponse(responseCode = "200", description = "Found the user by id", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "Invalid id supplied", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Users not found", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            })
 
-        if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN)) {
+    @GetMapping({"/{id}"})
+    public ResponseEntity<UserGetDTO> getUsersById(
+            @Parameter(description = "user id", required = true, name = "id", in = ParameterIn.QUERY)
+            @PathVariable long id, Principal principal) {
+        User user = userService.getUserByPrincipal(principal);
+        long idPrincipal = user.getId();
+
+        if (user.getRoles().contains(Role.ROLE_ADMIN)) {
             return ResponseEntity.ok(responseUserGetDTO(id));
         } else if (idPrincipal == id) {
             return ResponseEntity.ok(responseUserGetDTO(id));
@@ -61,9 +90,16 @@ public class UserController {
 
 
     //new user
+    @Operation(summary = "Create new user")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "201", description = "User created", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "400", description = "Invalid validation", content = @Content),
+            })
+
     @PostMapping
     public ResponseEntity<?> createUser(
-            @RequestBody @Valid UserPostDTO userPostDTO
+            @RequestBody @Valid UserPostNewDTO userPostNewDTO
             , BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
@@ -71,47 +107,93 @@ public class UserController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(mapErrors(bindingResult));
         }
-        if (userService.findByEmail(userPostDTO.getEmail()).isPresent()) {
-            Map<String, String> errorPasswordOld = Map.of("emailError", "such user already exists");
+        if (userService.findByEmail(userPostNewDTO.getEmail()).isPresent()) {
+            Map<String, String> errorIsUserPresent = Map.of("emailError", "such user already exists");
             return ResponseEntity.badRequest()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(errorPasswordOld);
+                    .body(errorIsUserPresent);
         }
-        User user = modelMapper.map(userPostDTO, User.class);
+        User user = modelMapper.map(userPostNewDTO, User.class);
         if (userService.saveToBase(user)) {
             return new ResponseEntity<>(HttpStatus.CREATED);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    //update for role admin
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping({"/update/{id}"})
-    public ResponseEntity<?> updateUserAdmin(
-            @RequestBody @Valid UserPostUpdateDTO userPostUpdateDTO
-            , BindingResult bindingResult
-            , @PathVariable long id
-    ) {
 
-        return getResponseEntity(userPostUpdateDTO, bindingResult, id);
-    }
+    @Operation(summary = "User update")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "User updated", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "400", description = "Invalid validation", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            })
 
-    //update for role user
-    @PutMapping({"/update"})
+    @PutMapping({"/{id}"})
     public ResponseEntity<?> updateUser(
             @RequestBody @Valid UserPostUpdateDTO userPostUpdateDTO
             , BindingResult bindingResult
+            , @PathVariable long id
             , Principal principal
     ) {
-        long id = userService.getUserByPrincipal(principal).getId();
-        Set<Role> roleSet = new HashSet<>();
-        if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN)) {
-            roleSet.add(Role.ROLE_ADMIN);
-        } else {
-            roleSet.add(Role.ROLE_USER);
+        User user = userService.getUserByPrincipal(principal);
+        long userId = user.getId();
+
+        if (userId == id) {
+            Set<Role> roleSet = new HashSet<>();
+            if (user.getRoles().contains(Role.ROLE_ADMIN)) {
+                roleSet.add(Role.ROLE_ADMIN);
+            } else {
+                roleSet.add(Role.ROLE_USER);
+            }
+            userPostUpdateDTO.setRoles(roleSet);
+
+            return getResponseEntity(userPostUpdateDTO, bindingResult, id);
+
+        } else if (user.getRoles().contains(Role.ROLE_ADMIN)) {
+
+            return getResponseEntity(userPostUpdateDTO, bindingResult, id);
         }
-        userPostUpdateDTO.setRoles(roleSet);
-        return getResponseEntity(userPostUpdateDTO, bindingResult, id);
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+
+    @Operation(summary = "User delete")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "User deleted", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "400", description = "Invalid validation", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            })
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> userDelete(Principal principal, @PathVariable long id) {
+        User user = userService.getUserByPrincipal(principal);
+        long userId = user.getId();
+        try {
+            if (userId == id || user.getRoles().contains(Role.ROLE_ADMIN)) {
+                jwtService.revokeAllUserTokens(userService.getById(id).orElseThrow());
+                userService.deleteById(id);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+
+    @Operation(summary = "User request param")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "user properties got", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "400", description = "Invalid validation", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            })
+
+    @GetMapping("/param")
+    public ResponseEntity<UserGetDTO> loginParam(Principal principal) {
+        return ResponseEntity.ok(responseUserGetDTO(principal));
     }
 
 
@@ -152,33 +234,9 @@ public class UserController {
     }
 
 
-    @DeleteMapping(value = {"/delete", "/delete/{id}"})
-    public ResponseEntity<?> userDelete(Principal principal, @PathVariable(required = false) String id) {
-            User user = userService.getUserByPrincipal(principal);
-            long userId = user.getId();
-            if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN) && id != null) {
-                userId = Long.parseLong(id);
-            }
-            try {
-                userService.deleteById(userId);
-                jwtService.revokeAllUserTokens(user);
-            } catch (Exception e) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-
-    @GetMapping("/param")
-
-    public ResponseEntity<?> loginParam(Principal principal) {
-        return ResponseEntity.ok(responseUserGetDTO(principal));
-    }
-
-
-    private Map<String, String> mapErrors (BindingResult bindingResult) {
+    private Map<String, String> mapErrors(BindingResult bindingResult) {
         return bindingResult.getFieldErrors().stream().collect(
-                Collectors.toMap(fieldError -> fieldError.getField() + "Error", f-> {
+                Collectors.toMap(fieldError -> fieldError.getField() + "Error", f -> {
                     if (f.getDefaultMessage() != null) {
                         return f.getDefaultMessage();
                     }
@@ -191,6 +249,7 @@ public class UserController {
         User user = userService.getUserByPrincipal(principal);
         return modelMapper.map(user, UserGetDTO.class);
     }
+
     private UserGetDTO responseUserGetDTO(long id) {
         User user = userService.getById(id).orElseThrow();
         return modelMapper.map(user, UserGetDTO.class);

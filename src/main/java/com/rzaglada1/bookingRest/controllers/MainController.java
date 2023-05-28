@@ -4,9 +4,15 @@ import com.rzaglada1.bookingRest.dto.dto_get.HouseGetDTO;
 import com.rzaglada1.bookingRest.models.House;
 import com.rzaglada1.bookingRest.models.HousesFilter;
 import com.rzaglada1.bookingRest.services.HouseService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -30,11 +36,20 @@ public class MainController {
 
 
 
+    @Operation(summary = "Find houses by  filter")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "Found houses for booking",
+                            content = @Content(schema = @Schema(implementation = HousesFilter.class))),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Houses not found", content = @Content)
+            })
+
     @PostMapping("/find")
     public ResponseEntity<?> houseFind(
               @RequestBody @Valid HousesFilter housesFilter
             , BindingResult bindingResult
-            , @PageableDefault(size = 3) Pageable pageable
+            , @ParameterObject @PageableDefault(size = 3) Pageable pageable
     ) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest()
@@ -78,11 +93,13 @@ public class MainController {
             people = housesFilter.getPeople();
         }
 
+        System.out.println(housesFilter);
+        System.out.println(country + city + date + days + people);
+        System.out.println(pageable);
         Page<House> housePage = houseService.filterHouses(country, city, date, days, people, pageable);
         Page<HouseGetDTO> houseGetDTOPage = housePage.map(objectEntity -> modelMapper.map(objectEntity, HouseGetDTO.class));
         return ResponseEntity.ok(houseGetDTOPage);
     }
-
 
 
 

@@ -5,6 +5,10 @@ import com.rzaglada1.bookingRest.dto.dto_post.FeedbackPostDTO;
 import com.rzaglada1.bookingRest.models.Feedback;
 import com.rzaglada1.bookingRest.services.FeedbackService;
 import com.rzaglada1.bookingRest.services.HouseService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -30,12 +34,21 @@ public class FeedbackController {
     private final ModelMapper modelMapper = new ModelMapper();
 
 
-    @GetMapping("/{houseId}")
+    @Operation(summary = "Get feedbacks by house id")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "The id house is on the feedbacks list", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "400", description = "Invalid id supplied", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Feedbacks not found", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            })
+
+    @GetMapping("/{idHouse}")
     public ResponseEntity<List<FeedbackGetDTO>> getFeedbackByHouseId(
-            @PathVariable Long houseId
+            @PathVariable Long idHouse
     ) {
         ModelMapper modelMapper = new ModelMapper();
-        List<Feedback> feedbackList = feedbackService.getFeedbackByHouseId(houseId);
+        List<Feedback> feedbackList = feedbackService.getFeedbackByHouseId(idHouse);
 
         Type listType = new TypeToken<List<FeedbackGetDTO>>() {
         }.getType();
@@ -44,9 +57,16 @@ public class FeedbackController {
     }
 
 
-    @PostMapping("/{houseId}")
+    @Operation(summary = "Create feedback by house id")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "201", description = "Feedback created", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            })
+
+    @PostMapping("/{idHouse}")
     public ResponseEntity<?> houseFeedback(
-            @PathVariable("houseId") Long houseId
+            @PathVariable("idHouse") Long idHouse
             , @RequestBody @Valid FeedbackPostDTO feedbackPostDTO
             , BindingResult bindingResult
             , Principal principal
@@ -57,9 +77,9 @@ public class FeedbackController {
                     .body(mapErrors(bindingResult));
         }
 
-        if (houseService.getById(houseId).isPresent()) {
+        if (houseService.getById(idHouse).isPresent()) {
             Feedback feedback = modelMapper.map(feedbackPostDTO, Feedback.class);
-            feedbackService.saveToBase(feedback, houseId, principal);
+            feedbackService.saveToBase(feedback, idHouse, principal);
             return new ResponseEntity<>(HttpStatus.CREATED);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
