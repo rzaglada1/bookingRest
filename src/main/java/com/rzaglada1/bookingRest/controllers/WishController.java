@@ -41,7 +41,7 @@ public class WishController {
             @PathVariable long idHouse
             , Principal principal
     ) {
-        Optional<House> house = houseService.getHouseById(idHouse);
+        Optional<House> house = houseService.getById(idHouse);
         User user = userService.getUserByPrincipal(principal);
         Wish wish = new Wish();
         if (house.isPresent()  ) {
@@ -90,9 +90,12 @@ public class WishController {
     public ResponseEntity<Page<WishGetDTO>> wishesByUser(
             Principal principal
             ,@ParameterObject @PageableDefault(size = 3) Pageable pageable) {
-        Page<Wish> wishPage = wishService.getWishByUser(principal, pageable);
-        Page<WishGetDTO> wishGetDTOPage = wishPage.map(objectEntity -> modelMapper.map(objectEntity, WishGetDTO.class));
-        return ResponseEntity.ok(wishGetDTOPage);
+        if (principal != null) {
+            Page<Wish> wishPage = wishService.getWishByUser(principal, pageable);
+            Page<WishGetDTO> wishGetDTOPage = wishPage.map(objectEntity -> modelMapper.map(objectEntity, WishGetDTO.class));
+            return ResponseEntity.ok(wishGetDTOPage);
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 
 
@@ -108,7 +111,7 @@ public class WishController {
               @PathVariable long idHouse
             , Principal principal
              ) {
-        if (houseService.getHouseById(idHouse).isPresent() ) {
+        if (houseService.getById(idHouse).isPresent() ) {
             wishService.deleteFromBase(idHouse, principal);
             return new ResponseEntity<>(HttpStatus.OK);
         }

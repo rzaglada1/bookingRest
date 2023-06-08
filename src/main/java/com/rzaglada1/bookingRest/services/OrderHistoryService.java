@@ -25,6 +25,6 @@ public class OrderHistoryService {
     }
 
     public List<OrderHistory> getOrderHistoryByHouseId (long id) {
-        return orderHistoryRepository.getFeedbackByHouseId(id);
+        return orderHistoryRepository.getOrderHistoryByHouseId(id);
     }
 }

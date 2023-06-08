@@ -34,7 +34,7 @@ public class House {
     @OneToOne (optional=false, mappedBy="house", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
     private Image image;
 
-    @OneToMany (mappedBy="house", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany (mappedBy="house", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Feedback> feedbackList;
 
     @OneToMany (mappedBy="house", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

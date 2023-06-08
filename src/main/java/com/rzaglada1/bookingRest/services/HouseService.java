@@ -91,9 +91,6 @@ public class HouseService {
         return repositoryHouse.getHouseByUser(user, pageable);
     }
 
-    public Optional<House> getHouseById(long id) {
-        return repositoryHouse.findById(id);
-    }
 
     private User getUserByPrincipal(Principal principal) {
         return repositoryUser.findByEmail(principal.getName()).orElseThrow();

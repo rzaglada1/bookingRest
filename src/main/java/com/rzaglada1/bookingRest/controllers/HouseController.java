@@ -52,14 +52,17 @@ public class HouseController {
             Principal principal
             , @ParameterObject @PageableDefault(sort = {"id"}, direction = Sort.Direction.ASC, size = 3) Pageable pageable) {
 
-        Page<House> housePage;
-        if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN)) {
-            housePage = houseService.getAll(pageable);
-        } else {
-            housePage = houseService.getHouseByUser(userService.getUserByPrincipal(principal), pageable);
+        if (principal != null) {
+            Page<House> housePage;
+            if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN)) {
+                housePage = houseService.getAll(pageable);
+            } else {
+                housePage = houseService.getHouseByUser(userService.getUserByPrincipal(principal), pageable);
+            }
+            Page<HouseGetDTO> houseGetDTOPage = housePage.map(objectEntity -> modelMapper.map(objectEntity, HouseGetDTO.class));
+            return ResponseEntity.ok(houseGetDTOPage);
         }
-        Page<HouseGetDTO> houseGetDTOPage = housePage.map(objectEntity -> modelMapper.map(objectEntity, HouseGetDTO.class));
-        return ResponseEntity.ok(houseGetDTOPage);
+        return ResponseEntity.badRequest().body(null);
     }
 
 
@@ -140,7 +143,7 @@ public class HouseController {
         }
         if (houseService.getById(id).isPresent()) {
             if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN)
-                    || houseService.getHouseById(id).orElseThrow().getUser().getId() == userService.getUserByPrincipal(principal).getId()
+                    || houseService.getById(id).orElseThrow().getUser().getId() == userService.getUserByPrincipal(principal).getId()
             ) {
                 try {
                     House house = modelMapper.map(housePostDTO, House.class);
@@ -167,7 +170,7 @@ public class HouseController {
     public ResponseEntity<?> houseDelete(@PathVariable("id") Long id, Principal principal) {
         if (principal != null && houseService.getById(id).isPresent()) {
             if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN)
-                    || houseService.getHouseById(id).orElseThrow().getUser().getId() == userService.getUserByPrincipal(principal).getId()
+                    || houseService.getById(id).orElseThrow().getUser().getId() == userService.getUserByPrincipal(principal).getId()
             ) {
                 houseService.deleteById(id);
                 return new ResponseEntity<>(HttpStatus.OK);

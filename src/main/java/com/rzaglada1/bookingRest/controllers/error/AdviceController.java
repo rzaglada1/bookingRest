@@ -2,18 +2,20 @@ package com.rzaglada1.bookingRest.controllers.error;
 
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 
 @ControllerAdvice
@@ -49,7 +51,12 @@ public class AdviceController {
 
     @ExceptionHandler(value = UsernameNotFoundException.class)
     public ResponseEntity<Object> userNotFoundException(UsernameNotFoundException e) {
-        System.out.println("111qqqq");
         return new ResponseEntity<>(e.getMessage(), BAD_REQUEST);
     }
+
+    @ExceptionHandler({ AuthenticationException.class })
+    public ResponseEntity<Object> handleAuthenticationException(Exception ex) {
+        return new ResponseEntity<>(ex.getMessage(), UNAUTHORIZED);
+    }
+
 }

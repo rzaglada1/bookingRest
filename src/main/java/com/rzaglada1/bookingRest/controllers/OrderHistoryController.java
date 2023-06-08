@@ -76,9 +76,12 @@ public class OrderHistoryController {
     public ResponseEntity<Page<OrderHistoryGetDTO>> wishesByUser(
             Principal principal
             ,@ParameterObject @PageableDefault(size = 3) Pageable pageable) {
-        Page<OrderHistory> historyPage = orderHistoryService.findOrdersByUser(userService.getUserByPrincipal(principal), pageable);
-        Page<OrderHistoryGetDTO> historyGetDTOPage = historyPage.map(objectEntity -> modelMapper.map(objectEntity, OrderHistoryGetDTO.class));
-        return ResponseEntity.ok(historyGetDTOPage);
+        if (principal != null) {
+            Page<OrderHistory> historyPage = orderHistoryService.findOrdersByUser(userService.getUserByPrincipal(principal), pageable);
+            Page<OrderHistoryGetDTO> historyGetDTOPage = historyPage.map(objectEntity -> modelMapper.map(objectEntity, OrderHistoryGetDTO.class));
+            return ResponseEntity.ok(historyGetDTOPage);
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 
 
@@ -113,7 +116,7 @@ public class OrderHistoryController {
         orderHistory.setDataBookingEnd(orderHistory.getDataBookingStart().plusDays(orderHistory.getNumDaysBooking()));
         orderHistory.setUser(user);
 
-        House house = houseService.getHouseById(idHouse).orElseThrow();
+        House house = houseService.getById(idHouse).orElseThrow();
         if (houseService.isDateFree(orderHistory, idHouse) && house.getNumTourists() >= orderHistory.getNumTourists()) {
             orderHistory.setHouse(house);
             if (prebooking == null) {

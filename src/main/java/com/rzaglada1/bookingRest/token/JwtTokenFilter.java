@@ -1,7 +1,7 @@
 package com.rzaglada1.bookingRest.token;
 
 
-
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Component
 @AllArgsConstructor
@@ -41,14 +43,22 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
 
-//        System.out.println("autHeader " + authHeader);
-
         if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
         jwt = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(jwt);
+        try {
+            userEmail = jwtService.extractUsername(jwt);
+        }  catch (JwtException e) {
+            String msg = "SignatureException";
+            System.out.println(msg);
+            response.setContentType(APPLICATION_JSON_VALUE);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, msg);
+            return;
+    }
+
+
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
