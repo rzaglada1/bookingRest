@@ -12,6 +12,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Cacheable("user")
     Optional<User> findByEmail (String email);
 
+    @Cacheable("user")
+    Optional<User> findById (long id);
+
     @Query("SELECT COUNT(u) FROM User u")
     long size ();
 

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -42,6 +43,7 @@ public class OrderHistoryController {
     private final ModelMapper modelMapper = new ModelMapper();
 
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Get order history by house id (for the availability calendar)")
     @ApiResponses(value =
             {
@@ -65,6 +67,7 @@ public class OrderHistoryController {
     }
 
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Get orders history list by authentication user")
     @ApiResponses(value =
             {
@@ -85,6 +88,7 @@ public class OrderHistoryController {
     }
 
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Booking by house id. if prebooking is present, only the check of the availability of the house according to the specified parameters")
     @ApiResponses(value =
             {

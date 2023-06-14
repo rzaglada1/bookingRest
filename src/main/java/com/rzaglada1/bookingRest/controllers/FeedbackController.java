@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -34,6 +35,7 @@ public class FeedbackController {
     private final ModelMapper modelMapper = new ModelMapper();
 
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Get feedbacks by house id")
     @ApiResponses(value =
             {
@@ -57,6 +59,7 @@ public class FeedbackController {
     }
 
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Create feedback by house id")
     @ApiResponses(value =
             {

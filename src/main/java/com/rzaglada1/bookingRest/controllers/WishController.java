@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springdoc.core.annotations.ParameterObject;
@@ -36,6 +37,7 @@ public class WishController {
 
 
     // new wish
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/{idHouse}")
     public ResponseEntity<?> createWish(
             @PathVariable long idHouse
@@ -57,6 +59,7 @@ public class WishController {
     }
 
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Get wish by house id")
     @ApiResponses(value =
             {
@@ -80,6 +83,7 @@ public class WishController {
 
 
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Get wishes list by authentication user")
     @ApiResponses(value =
             {
@@ -99,6 +103,7 @@ public class WishController {
     }
 
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Wish by house id delete")
     @ApiResponses(value =
             {

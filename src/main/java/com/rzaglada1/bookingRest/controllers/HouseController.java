@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
@@ -41,6 +44,7 @@ public class HouseController {
 
 
     // request form all  house
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Get houses list")
     @ApiResponses(value =
             {
@@ -52,6 +56,10 @@ public class HouseController {
             Principal principal
             , @ParameterObject @PageableDefault(sort = {"id"}, direction = Sort.Direction.ASC, size = 3) Pageable pageable) {
 
+        CacheControl cacheControl = CacheControl.maxAge(60, TimeUnit.SECONDS)
+                .noTransform()
+                .mustRevalidate();
+
         if (principal != null) {
             Page<House> housePage;
             if (userService.getUserByPrincipal(principal).getRoles().contains(Role.ROLE_ADMIN)) {
@@ -60,13 +68,14 @@ public class HouseController {
                 housePage = houseService.getHouseByUser(userService.getUserByPrincipal(principal), pageable);
             }
             Page<HouseGetDTO> houseGetDTOPage = housePage.map(objectEntity -> modelMapper.map(objectEntity, HouseGetDTO.class));
-            return ResponseEntity.ok(houseGetDTOPage);
+            return ResponseEntity.ok().cacheControl(cacheControl).body(houseGetDTOPage);
         }
         return ResponseEntity.badRequest().body(null);
     }
 
 
     // create new house
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Create new house")
     @ApiResponses(value =
             {
@@ -98,6 +107,7 @@ public class HouseController {
 
 
     // request form edit house by id
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Get house by id")
     @ApiResponses(value =
             {
@@ -121,6 +131,7 @@ public class HouseController {
 
 
     // update house
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "House update")
     @ApiResponses(value =
             {
@@ -158,7 +169,8 @@ public class HouseController {
     }
 
 
-    @Operation(summary = "Hose delete")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(summary = "House delete")
     @ApiResponses(value =
             {
                     @ApiResponse(responseCode = "200", description = "House deleted", useReturnTypeSchema = true),

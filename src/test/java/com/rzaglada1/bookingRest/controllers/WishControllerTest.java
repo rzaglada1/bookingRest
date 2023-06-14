@@ -25,7 +25,6 @@ class WishControllerTest {
     MockMvc mockMvc;
 
     static String tokenRoleUser;
-    static String tokenRoleAdmin;
     @BeforeAll
     static void createToken (@Autowired JwtService jwtService) {
         System.out.println("Create jwt");
@@ -36,12 +35,6 @@ class WishControllerTest {
         tokenRoleUser = jwtService.generateToken(user);
         jwtService.revokeAllUserTokens(user);
         jwtService.saveUserToken(user, tokenRoleUser);
-
-        user.setEmail("test@admin");
-        user.setId(58);
-        tokenRoleAdmin = jwtService.generateToken(user);
-        jwtService.revokeAllUserTokens(user);
-        jwtService.saveUserToken(user, tokenRoleAdmin);
     }
 
 

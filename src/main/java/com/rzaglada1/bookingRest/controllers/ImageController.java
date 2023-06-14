@@ -7,8 +7,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayInputStream;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping(value = "/images")
@@ -27,6 +30,7 @@ public class ImageController {
     private final ImageService imageService;
 
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Get image by id")
     @ApiResponses(value =
             {
@@ -39,11 +43,14 @@ public class ImageController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getImageById (@PathVariable long id) {
+        CacheControl cacheControl = CacheControl.maxAge(60, TimeUnit.SECONDS)
+                .noTransform()
+                .mustRevalidate();
         ResponseEntity<?> responseEntity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
         Optional<Image> image = imageService.findById(id);
         if (image.isPresent()) {
             responseEntity = ResponseEntity.ok()
-//                    .header("fileName", image.get().getFileName())
+                    .cacheControl(cacheControl)
                     .contentType(MediaType.valueOf(image.get().getContentType()))
                     .contentLength(image.get().getSize())
                     .body(new InputStreamResource(new ByteArrayInputStream(image.get().getPhotoToBytes())));

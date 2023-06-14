@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -45,12 +46,14 @@ public class UserController {
     private final ModelMapper modelMapper = new ModelMapper();
 
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Get users list (only for role 'ADMIN')")
     @ApiResponses(value =
             {
-            @ApiResponse(responseCode = "200", description = "Found the all users", useReturnTypeSchema = true),
-            @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
-            } )
+                    @ApiResponse(responseCode = "200", description = "Found the all users", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+            })
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
@@ -67,15 +70,15 @@ public class UserController {
     @Operation(summary = "Get user by id")
     @ApiResponses(value =
             {
-            @ApiResponse(responseCode = "200", description = "Found the user by id", useReturnTypeSchema = true),
-            @ApiResponse(responseCode = "400", description = "Invalid id supplied", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Users not found", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
+                    @ApiResponse(responseCode = "200", description = "Found the user by id", useReturnTypeSchema = true),
+                    @ApiResponse(responseCode = "400", description = "Invalid id supplied", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Users not found", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid token or role not 'ADMIN'", content = @Content)
             })
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping({"/{id}"})
     public ResponseEntity<UserGetDTO> getUsersById(
-            @Parameter(description = "user id", required = true, name = "id", in = ParameterIn.QUERY)
             @PathVariable long id, Principal principal) {
         User user = userService.getUserByPrincipal(principal);
         long idPrincipal = user.getId();
@@ -121,6 +124,7 @@ public class UserController {
     }
 
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "User update")
     @ApiResponses(value =
             {
@@ -158,6 +162,7 @@ public class UserController {
     }
 
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "User delete")
     @ApiResponses(value =
             {
@@ -183,6 +188,7 @@ public class UserController {
     }
 
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "User request param")
     @ApiResponses(value =
             {
@@ -193,7 +199,8 @@ public class UserController {
 
     @GetMapping("/param")
     public ResponseEntity<UserGetDTO> loginParam(Principal principal) {
-        return ResponseEntity.ok(responseUserGetDTO(principal));
+        User user = userService.getUserByPrincipal(principal);
+        return ResponseEntity.ok(responseUserGetDTO(user.getId()));
     }
 
 
@@ -244,11 +251,6 @@ public class UserController {
                 }));
     }
 
-
-    private UserGetDTO responseUserGetDTO(Principal principal) {
-        User user = userService.getUserByPrincipal(principal);
-        return modelMapper.map(user, UserGetDTO.class);
-    }
 
     private UserGetDTO responseUserGetDTO(long id) {
         User user = userService.getById(id).orElseThrow();

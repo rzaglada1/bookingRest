@@ -93,9 +93,6 @@ public class MainController {
             people = housesFilter.getPeople();
         }
 
-        System.out.println(housesFilter);
-        System.out.println(country + city + date + days + people);
-        System.out.println(pageable);
         Page<House> housePage = houseService.filterHouses(country, city, date, days, people, pageable);
         Page<HouseGetDTO> houseGetDTOPage = housePage.map(objectEntity -> modelMapper.map(objectEntity, HouseGetDTO.class));
         return ResponseEntity.ok(houseGetDTOPage);
